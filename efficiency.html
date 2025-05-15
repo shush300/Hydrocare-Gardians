@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Efficiency - Farm Filtration</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Efficiency page specific styles */
+        .efficiency-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .efficiency-section:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .status-needs-change {
+            background-color: rgba(245, 124, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .status-good {
+            background-color: rgba(56, 142, 60, 0.1);
+            color: var(--success);
+        }
+
+        @media (max-width: 768px) {
+            .efficiency-section {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header><h1>GreenFarm Filtration</h1></header>
+    <nav>
+        <ul>
+             <li><a href="control.html">Control Panel</a></li>
+            <li><a href="efficiency.html">Efficiency & Reminders</a></li>
+            <li><a href="report.html">Annual Report</a></li>
+            <li><a href="account.html">My Account</a></li>
+            <li><a href="logout-handler">Logout</a></li> <!-- Needs backend -->
+        </ul>
+    </nav>
+    <main class="container">
+        <h2>Filter Efficiency & Reminders</h2>
+
+        <div class="efficiency-section">
+            <h3>Moringa Filter Reminder</h3>
+            <p>Status: <span id="moringa-status"><!-- Dynamic Data: e.g., Needs changing --></span></p>
+            <p>Last Soak Started: <span id="moringa-soak-time"><!-- Dynamic Data: e.g., 2024-03-10 14:00 --></span></p>
+            <p>Reminder: Change after 48 hours of soaking.</p>
+            <!-- This button needs JavaScript and backend to update the status -->
+            <button id="reset-moringa">Mark Moringa as Changed</button>
+        </div>
+
+        <div class="efficiency-section">
+            <h3>Sodium Carbonate / Bicarbonate Reminder</h3>
+            <p>Current Cycle Count: <span id="carbonate-cycles"><!-- Dynamic Data: e.g., 45 --></span> / 50</p>
+            <p>Status: <span id="carbonate-status"><!-- Dynamic Data: e.g., Change Soon --></span></p>
+            <p>Reminder: Change after approximately 50 filtration cycles for best efficiency.</p>
+             <!-- This button needs JavaScript and backend -->
+            <button id="reset-carbonate-cycle">Reset Cycle Count (Use Carefully)</button>
+        </div>
+
+        <div class="efficiency-section">
+            <h3>Physical Stage Check Reminder</h3>
+            <p>Last Checked: <span id="physical-last-check"><!-- Dynamic Data: e.g., 2024-03-01 --></span></p>
+            <p>Status: <span id="physical-status"><!-- Dynamic Data: e.g., Check Recommended --></span></p>
+            <p>Reminder: Check visually every two weeks.</p>
+             <!-- This button needs JavaScript and backend -->
+            <button id="mark-physical-checked">Mark as Checked Today</button>
+        </div>
+
+    </main>
+    <footer><p>© 2024 GreenFarm Systems</p></footer>
+    <script src="script.js"></script> <!-- For button interactions -->
+</body>
+</html>

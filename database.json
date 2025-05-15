@@ -1,0 +1,119 @@
+{
+  "users": {
+    "uid": {
+      "phoneNumber": "+1234567890",
+      "createdAt": "2024-03-13T00:00:00Z",
+      "lastLogin": "2024-03-13T00:00:00Z",
+      "isActive": true,
+      "settings": {
+        "notifications": {
+          "filterChange": true,
+          "maintenanceReminder": true,
+          "systemAlerts": true
+        }
+      }
+    }
+  },
+  "filterStatus": {
+    "uid": {
+      "moringa": {
+        "lastChanged": "2024-03-13T00:00:00Z",
+        "soakStartTime": null,
+        "isActive": false,
+        "changeCount": 0,
+        "efficiency": 100
+      },
+      "carbonate": {
+        "lastChanged": "2024-03-13T00:00:00Z",
+        "cycleCount": 0,
+        "efficiency": 100,
+        "type": "sodium"
+      },
+      "physical": {
+        "lastChecked": "2024-03-13T00:00:00Z",
+        "condition": "good",
+        "maintenanceNeeded": false
+      }
+    }
+  },
+  "systemStatus": {
+    "uid": {
+      "filtration": {
+        "isRunning": false,
+        "lastStart": null,
+        "lastStop": null,
+        "totalRunTime": 0,
+        "schedule": {
+          "enabled": false,
+          "startTime": "06:00",
+          "duration": 3600
+        }
+      },
+      "irrigation": {
+        "isRunning": false,
+        "lastStart": null,
+        "lastStop": null,
+        "totalRunTime": 0,
+        "schedule": {
+          "enabled": false,
+          "startTime": "07:00",
+          "duration": 1800
+        }
+      }
+    }
+  },
+  "maintenanceLogs": {
+    "uid": {
+      "log123": {
+        "timestamp": "2024-03-13T00:00:00Z",
+        "type": "filterChange",
+        "component": "moringa",
+        "notes": "Regular maintenance",
+        "performedBy": "uid"
+      }
+    }
+  },
+  "activityLogs": {
+    "uid": {
+      "activity123": {
+        "timestamp": "2024-03-13T00:00:00Z",
+        "type": "systemStart",
+        "component": "filtration",
+        "status": "success",
+        "details": "Manual activation"
+      }
+    }
+  },
+  "efficiencyMetrics": {
+    "uid": {
+      "daily": {
+        "20240313": {
+          "filtrationCycles": 0,
+          "irrigationCycles": 0,
+          "waterUsage": 0,
+          "energyUsage": 0,
+          "filterEfficiency": 100
+        }
+      },
+      "monthly": {
+        "202403": {
+          "totalRunTime": 0,
+          "maintenanceCount": 0,
+          "averageEfficiency": 100,
+          "costSavings": 0
+        }
+      }
+    }
+  },
+  "alerts": {
+    "uid": {
+      "alert123": {
+        "timestamp": "2024-03-13T00:00:00Z",
+        "type": "maintenanceNeeded",
+        "severity": "warning",
+        "message": "Moringa filter change recommended",
+        "read": false
+      }
+    }
+  }
+} 

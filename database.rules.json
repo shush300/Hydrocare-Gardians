@@ -1,0 +1,90 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid",
+        ".validate": "newData.hasChildren(['phoneNumber', 'createdAt', 'isActive'])"
+      }
+    },
+    
+    "filter_status": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid",
+        "moringa": {
+          ".validate": "newData.hasChildren(['lastChanged', 'isActive', 'efficiency'])"
+        },
+        "carbonate": {
+          ".validate": "newData.hasChildren(['lastChanged', 'cycleCount', 'efficiency'])"
+        },
+        "physical": {
+          ".validate": "newData.hasChildren(['lastChecked', 'condition'])"
+        }
+      }
+    },
+    
+    "system_status": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid",
+        "filtration": {
+          ".validate": "newData.hasChildren(['isRunning', 'schedule'])"
+        },
+        "irrigation": {
+          ".validate": "newData.hasChildren(['isRunning', 'schedule'])"
+        }
+      }
+    },
+    
+    "maintenance_logs": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid",
+        "$log_id": {
+          ".validate": "newData.hasChildren(['timestamp', 'type', 'component'])"
+        }
+      }
+    },
+    
+    "activity_logs": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid",
+        "$activity_id": {
+          ".validate": "newData.hasChildren(['timestamp', 'type', 'status'])"
+        }
+      }
+    },
+    
+    "efficiency_metrics": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid",
+        "daily": {
+          "$date": {
+            ".validate": "newData.hasChildren(['filtrationCycles', 'waterUsage', 'filterEfficiency'])"
+          }
+        },
+        "monthly": {
+          "$month": {
+            ".validate": "newData.hasChildren(['totalRunTime', 'averageEfficiency'])"
+          }
+        }
+      }
+    },
+    
+    "alerts": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid",
+        "$alert_id": {
+          ".validate": "newData.hasChildren(['timestamp', 'type', 'severity', 'message'])"
+        }
+      }
+    }
+  }
+} 

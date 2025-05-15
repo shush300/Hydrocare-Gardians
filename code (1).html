@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel - Farm Filtration (Single File Demo)</title>
+
+    <!-- Firebase SDK (Modular v9+) -->
+    <script type="module" src="firebase-config.js"></script>
+
+    <!-- Your Services -->
+    <script type="module" src="auth-service.js"></script>
+    <script type="module" src="filtration-service.js"></script>
+
+    <!-- Test Firebase Configuration -->
+    <script type="module">
+        import { app, auth, firestore, realTimeDb } from './firebase-config.js';
+        
+        window.addEventListener('load', async function() {
+            try {
+                // Test Firebase initialization
+                if (!app) {
+                    console.error('Firebase not initialized. Check your configuration.');
+                } else {
+                    console.log('Firebase initialized successfully!');
+                    
+                    // Test database connection
+                    const connectedRef = ref(realTimeDb, '.info/connected');
+                    onValue(connectedRef, (snap) => {
+                        if (snap.val() === true) {
+                            console.log('Database connection successful!');
+                        } else {
+                            console.log('Database connection lost');
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                alert('Error initializing Firebase. Check console for details.');
+            }
+        });
+    </script>
+
+    <style>
+        /* --- CSS Reset and Variables --- */
+        :root {
+            --primary: #2E7D32;
+            --primary-light: #4CAF50;
+            --primary-dark: #1B5E20;
+            --accent: #81C784;
+            --background: #F5F7F5;
+            --surface: #FFFFFF;
+            --text: #263238;
+            --text-light: #546E7A;
+            --error: #D32F2F;
+            --success: #388E3C;
+            --warning: #F57C00;
+            --info: #1976D2;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            --transition: all 0.3s ease;
+        }
+
+        /* --- Animated Background --- */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* --- General Styling --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(-45deg, #E8F5E9, #C8E6C9, #A5D6A7, #81C784);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        /* --- Header --- */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--surface);
+            padding: 1.5rem 0;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.1) 50%, transparent 55%);
+            background-size: 200% 200%;
+            animation: gradientBG 3s ease infinite;
+        }
+
+        header h1 {
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: 1px;
+            font-size: 2.2rem;
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            background-color: rgba(27, 94, 32, 0.95);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        nav:hover {
+            background-color: rgba(27, 94, 32, 1);
+        }
+
+        nav ul li a {
+            color: var(--surface);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        nav ul li a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background-color: var(--surface);
+            transition: var(--transition);
+        }
+
+        nav ul li a:hover::before {
+            width: 80%;
+        }
+
+        nav ul li a:hover,
+        nav ul li a.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        /* --- Headings --- */
+        h2, h3 {
+            color: var(--primary-dark);
+            margin: 2rem 0 1.5rem;
+            font-weight: 600;
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: var(--primary);
+            margin-top: 0.5rem;
+            border-radius: var(--radius-sm);
+        }
+
+        /* --- Buttons --- */
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 120px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 125, 50, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: linear-gradient(135deg, var(--text-light) 0%, var(--text) 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+
+        /* --- Forms --- */
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #E0E0E0;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+            background-color: white;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .form-group:focus-within label {
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* --- Control Sections --- */
+        .control-section {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        .control-section:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .schedule-control {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+
+        /* --- Status Indicators --- */
+        #filtration-status,
+        #irrigation-status {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            margin: 0.5rem 0;
+            transition: var(--transition);
+        }
+
+        .status-running {
+            background-color: rgba(56, 142, 60, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .status-idle {
+            background-color: rgba(84, 110, 122, 0.1);
+            color: var(--text-light);
+            border: 1px solid var(--text-light);
+        }
+
+        /* --- Flash Messages --- */
+        .flash-messages {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-md);
+            animation: slideIn 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-success {
+            background-color: #E8F5E9;
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .alert-danger {
+            background-color: #FFEBEE;
+            border: 1px solid var(--error);
+            color: var(--error);
+        }
+
+        .alert-warning {
+            background-color: #FFF3E0;
+            border: 1px solid var(--warning);
+            color: var(--warning);
+        }
+
+        .alert-info {
+            background-color: #E3F2FD;
+            border: 1px solid var(--info);
+            color: var(--info);
+        }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            margin-top: 3rem;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            nav ul li a {
+                width: 100%;
+                text-align: center;
+            }
+
+            .schedule-control {
+                grid-template-columns: 1fr;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        /* --- Animations --- */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .running-animation {
+            animation: pulse 2s infinite;
+        }
+
+        /* --- Cards and Panels --- */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        /* --- Loading Animation --- */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* --- Success/Error Messages --- */
+        .message {
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.success {
+            background-color: rgba(56, 142, 60, 0.1);
+            border-left: 4px solid var(--success);
+            color: var(--success);
+        }
+
+        .message.error {
+            background-color: rgba(211, 47, 47, 0.1);
+            border-left: 4px solid var(--error);
+            color: var(--error);
+        }
+    </style>
+
+</head>
+<body>
+
+    <header>
+        <h1>GreenFarm Filtration</h1>
+    </header>
+
+    <nav id="navbar">
+        <button class="hamburger" id="hamburger-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul id="nav-menu">
+            <li><a href="control.html">Control Panel</a></li>
+            <li><a href="efficiency.html">Efficiency & Reminders</a></li>
+            <li><a href="report.html">Annual Report</a></li>
+            <li><a href="account.html">My Account</a></li>
+            <li><a href="#" id="logout-btn">Logout</a></li>
+        </ul>
+    </nav>
+
+    <main class="container" id="control"> <!-- Added ID for potential navigation -->
+        <h2>Automatic Control Panel</h2>
+        <p>Control your filtration and irrigation cycles remotely.</p>
+        <!-- Optional: Area for flash messages -->
+        <div id="flash-message-area"></div>
+
+        <div class="control-section">
+            <h3>Filtration System</h3>
+            <p>Status: <strong id="filtration-status">Idle</strong> <!-- Initial static value --></p>
+            <!-- Buttons need JavaScript to send commands to the backend -->
+            <button id="start-filtration">Start Filtration Now</button>
+            <button id="stop-filtration" disabled>Stop Filtration Now</button> <!-- Initially disabled -->
+             <div class="schedule-control">
+                <label for="filtration-schedule-time">Set Auto Start Time:</label>
+                <input type="time" id="filtration-schedule-time" name="filtration_start_time">
+                <!-- Button needs JS/Backend -->
+                <button id="set-filtration-schedule">Set Filtration Schedule</button>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <h3>Irrigation System</h3>
+             <p>Status: <strong id="irrigation-status">Idle</strong> <!-- Initial static value --></p>
+             <!-- Buttons need JavaScript to send commands to the backend -->
+            <button id="start-irrigation">Start Irrigation Now</button>
+            <button id="stop-irrigation" disabled>Stop Irrigation Now</button> <!-- Initially disabled -->
+             <div class="schedule-control">
+                <label for="irrigation-schedule-start-time">Set Auto Start Time:</label>
+                <input type="time" id="irrigation-schedule-start-time" name="irrigation_start_time">
+                 <!-- Button needs JS/Backend -->
+                <button id="set-irrigation-schedule">Set Irrigation Schedule</button>
+            </div>
+        </div>
+
+         <!-- Placeholder sections for other content areas (would be on different pages normally) -->
+         <div id="efficiency" style="display: none;"> <!-- Hidden by default -->
+             <h2>Efficiency & Reminders</h2>
+             <!-- Content from efficiency.html would go here -->
+         </div>
+          <div id="report" style="display: none;"> <!-- Hidden by default -->
+             <h2>Annual Report</h2>
+             <!-- Content from report.html would go here -->
+         </div>
+         <div id="account" style="display: none;"> <!-- Hidden by default -->
+             <h2>My Account</h2>
+             <!-- Content from account.html would go here -->
+         </div>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2024 GreenFarm Systems</p>
+    </footer>
+
+    <script type="module">
+        // Import Firebase from CDN
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBgDqXmHJ6nGG_wP3wqay3dH_Da7QnqRAg",
+            authDomain: "greenfarm-filtration.firebaseapp.com",
+            databaseURL: "https://greenfarm-filtration-default-rtdb.firebaseio.com",
+            projectId: "greenfarm-filtration",
+            storageBucket: "greenfarm-filtration.firebasestorage.app",
+            messagingSenderId: "576448170070",
+            appId: "1:576448170070:web:badfa5ea6a0fa9522b53f7"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Logout functionality
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    await signOut(auth);
+                    // Redirect to login page after successful logout
+                    window.location.href = 'login.html';
+                } catch (error) {
+                    console.error('Error signing out:', error);
+                    alert('Error signing out. Please try again.');
+                }
+            });
+        }
+
+        // Check authentication state
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                // If not authenticated, redirect to login page
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Wait for the HTML document to be fully loaded before running scripts
+        document.addEventListener('DOMContentLoaded', () => {
+
+            console.log("DOM fully loaded and parsed");
+
+            // --- Configuration ---
+            // IMPORTANT: Replace with your actual backend API endpoints if connecting to one
+            const API_BASE_URL = '/api'; // Example base URL for a backend
+            const FILTRATION_CONTROL_URL = `${API_BASE_URL}/control/filtration`;
+            const IRRIGATION_CONTROL_URL = `${API_BASE_URL}/control/irrigation`;
+            const FILTRATION_SCHEDULE_URL = `${API_BASE_URL}/schedule/filtration`;
+            const IRRIGATION_SCHEDULE_URL = `${API_BASE_URL}/schedule/irrigation`;
+
+            // --- Helper Function for API Calls ---
+            async function apiCall(url, method = 'POST', data = null) {
+                displayFlashMessage(`Attempting ${method} request...`, 'info'); // Give visual feedback
+                try {
+                    const options = {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    };
+                    if (data && (method === 'POST' || method === 'PUT')) {
+                        options.body = JSON.stringify(data);
+                    }
+
+                    const response = await fetch(url, options);
+                    const responseData = await response.json().catch(() => ({}));
+
+                    if (!response.ok) {
+                        const errorMessage = responseData.message || `Network or server error: ${response.status}`;
+                        throw new Error(errorMessage);
+                    }
+
+                    if (responseData.message) {
+                        displayFlashMessage(responseData.message, 'success');
+                    }
+                    return responseData;
+
+                } catch (error) {
+                    console.error('API Call Error:', error);
+                    displayFlashMessage(`Error: ${error.message}`, 'danger');
+                    return null;
+                }
+            }
+
+            // --- Helper Function for Flash Messages ---
+            const flashArea = document.getElementById('flash-message-area');
+            function displayFlashMessage(message, type = 'info') {
+                if (!flashArea) return;
+                
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type}`;
+                alertDiv.textContent = message;
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.innerHTML = '&times;';
+                closeBtn.style.cssText = `
+                    position: absolute;
+                    right: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background: none;
+                    border: none;
+                    font-size: 1.2em;
+                    cursor: pointer;
+                    padding: 0 5px;
+                    min-width: auto;
+                    color: inherit;
+                `;
+                closeBtn.onclick = () => {
+                    alertDiv.style.opacity = '0';
+                    setTimeout(() => alertDiv.remove(), 300);
+                };
+                
+                alertDiv.style.position = 'relative';
+                alertDiv.appendChild(closeBtn);
+                flashArea.prepend(alertDiv);
+
+                setTimeout(() => {
+                    if (alertDiv) {
+                        alertDiv.style.opacity = '0';
+                        setTimeout(() => alertDiv.remove(), 300);
+                    }
+                }, 6000);
+            }
+
+            // --- Control Panel Logic ---
+            const startFiltrationBtn = document.getElementById('start-filtration');
+            const stopFiltrationBtn = document.getElementById('stop-filtration');
+            const filtrationStatusSpan = document.getElementById('filtration-status');
+            const setFiltrationScheduleBtn = document.getElementById('set-filtration-schedule');
+            const filtrationScheduleInput = document.getElementById('filtration-schedule-time');
+
+            const startIrrigationBtn = document.getElementById('start-irrigation');
+            const stopIrrigationBtn = document.getElementById('stop-irrigation');
+            const irrigationStatusSpan = document.getElementById('irrigation-status');
+            const setIrrigationScheduleBtn = document.getElementById('set-irrigation-schedule');
+            const irrigationScheduleInput = document.getElementById('irrigation-schedule-start-time');
+
+            // Function to update UI elements for filtration
+            function updateFiltrationUI(isRunning) {
+                if (filtrationStatusSpan) {
+                    filtrationStatusSpan.textContent = isRunning ? 'Running' : 'Idle';
+                    filtrationStatusSpan.className = isRunning ? 'status-running' : 'status-idle';
+                    if (isRunning) {
+                        filtrationStatusSpan.classList.add('running-animation');
+                    } else {
+                        filtrationStatusSpan.classList.remove('running-animation');
+                    }
+                }
+                if (startFiltrationBtn) startFiltrationBtn.disabled = isRunning;
+                if (stopFiltrationBtn) stopFiltrationBtn.disabled = !isRunning;
+            }
+
+            // Function to update UI elements for irrigation
+            function updateIrrigationUI(isRunning) {
+                if (irrigationStatusSpan) {
+                    irrigationStatusSpan.textContent = isRunning ? 'Running' : 'Idle';
+                    irrigationStatusSpan.className = isRunning ? 'status-running' : 'status-idle';
+                    if (isRunning) {
+                        irrigationStatusSpan.classList.add('running-animation');
+                    } else {
+                        irrigationStatusSpan.classList.remove('running-animation');
+                    }
+                }
+                if (startIrrigationBtn) startIrrigationBtn.disabled = isRunning;
+                if (stopIrrigationBtn) stopIrrigationBtn.disabled = !isRunning;
+            }
+
+            // Event Listeners for Control Buttons with loading states
+            if (startFiltrationBtn) {
+                startFiltrationBtn.addEventListener('click', async () => {
+                    startFiltrationBtn.disabled = true;
+                    startFiltrationBtn.innerHTML = '<span class="loading">Starting...</span>';
+                    const result = await apiCall(FILTRATION_CONTROL_URL, 'POST', { action: 'start' });
+                    startFiltrationBtn.innerHTML = 'Start Filtration Now';
+                    if (result && result.status === 'success') {
+                        updateFiltrationUI(result.filtration_running);
+                    }
+                    startFiltrationBtn.disabled = false;
+                });
+            }
+
+            if (stopFiltrationBtn) {
+                stopFiltrationBtn.addEventListener('click', async () => {
+                    stopFiltrationBtn.disabled = true;
+                    stopFiltrationBtn.innerHTML = '<span class="loading">Stopping...</span>';
+                    const result = await apiCall(FILTRATION_CONTROL_URL, 'POST', { action: 'stop' });
+                    stopFiltrationBtn.innerHTML = 'Stop Filtration Now';
+                    if (result && result.status === 'success') {
+                        updateFiltrationUI(result.filtration_running);
+                    }
+                    stopFiltrationBtn.disabled = false;
+                });
+            }
+
+            if (startIrrigationBtn) {
+                startIrrigationBtn.addEventListener('click', async () => {
+                    startIrrigationBtn.disabled = true;
+                    startIrrigationBtn.innerHTML = '<span class="loading">Starting...</span>';
+                    const result = await apiCall(IRRIGATION_CONTROL_URL, 'POST', { action: 'start' });
+                    startIrrigationBtn.innerHTML = 'Start Irrigation Now';
+                    if (result && result.status === 'success') {
+                        updateIrrigationUI(result.irrigation_running);
+                    }
+                    startIrrigationBtn.disabled = false;
+                });
+            }
+
+            if (stopIrrigationBtn) {
+                stopIrrigationBtn.addEventListener('click', async () => {
+                    stopIrrigationBtn.disabled = true;
+                    stopIrrigationBtn.innerHTML = '<span class="loading">Stopping...</span>';
+                    const result = await apiCall(IRRIGATION_CONTROL_URL, 'POST', { action: 'stop' });
+                    stopIrrigationBtn.innerHTML = 'Stop Irrigation Now';
+                    if (result && result.status === 'success') {
+                        updateIrrigationUI(result.irrigation_running);
+                    }
+                    stopIrrigationBtn.disabled = false;
+                });
+            }
+
+            // Event Listeners for Setting Schedules with validation
+            if (setFiltrationScheduleBtn && filtrationScheduleInput) {
+                setFiltrationScheduleBtn.addEventListener('click', async () => {
+                    const timeValue = filtrationScheduleInput.value;
+                    if (!timeValue) {
+                        displayFlashMessage("Please select a valid time for the filtration schedule.", 'warning');
+                        return;
+                    }
+                    setFiltrationScheduleBtn.disabled = true;
+                    setFiltrationScheduleBtn.innerHTML = '<span class="loading">Setting Schedule...</span>';
+                    const result = await apiCall(FILTRATION_SCHEDULE_URL, 'POST', { start_time: timeValue });
+                    setFiltrationScheduleBtn.innerHTML = 'Set Filtration Schedule';
+                    setFiltrationScheduleBtn.disabled = false;
+                });
+            }
+
+            if (setIrrigationScheduleBtn && irrigationScheduleInput) {
+                setIrrigationScheduleBtn.addEventListener('click', async () => {
+                    const timeValue = irrigationScheduleInput.value;
+                    if (!timeValue) {
+                        displayFlashMessage("Please select a valid start time for the irrigation schedule.", 'warning');
+                        return;
+                    }
+                    setIrrigationScheduleBtn.disabled = true;
+                    setIrrigationScheduleBtn.innerHTML = '<span class="loading">Setting Schedule...</span>';
+                    const result = await apiCall(IRRIGATION_SCHEDULE_URL, 'POST', { start_time: timeValue });
+                    setIrrigationScheduleBtn.innerHTML = 'Set Irrigation Schedule';
+                    setIrrigationScheduleBtn.disabled = false;
+                });
+            }
+
+            // Add loading animation style
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes loading {
+                    0% { content: ""; }
+                    25% { content: "."; }
+                    50% { content: ".."; }
+                    75% { content: "..."; }
+                }
+                
+                .loading::after {
+                    content: "";
+                    display: inline-block;
+                    width: 1em;
+                    animation: loading 1.5s infinite steps(4);
+                }
+            `;
+            document.head.appendChild(style);
+
+            console.log("Event listeners attached.");
+
+        }); // End DOMContentLoaded
+    </script>
+
+    <script>
+        // Hamburger menu functionality
+        const hamburger = document.getElementById('hamburger-menu');
+        const navMenu = document.getElementById('nav-menu');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Hide menu on scroll
+        let lastScrollTop = 0;
+        const navbar = document.getElementById('navbar');
+        const navbarHeight = navbar.offsetHeight;
+
+        window.addEventListener('scroll', () => {
+            let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (currentScroll > lastScrollTop && currentScroll > navbarHeight) {
+                // Scrolling down
+                navbar.style.top = `-${navbarHeight}px`;
+                // Close mobile menu if open
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            } else {
+                // Scrolling up
+                navbar.style.top = '0';
+            }
+            lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!navbar.contains(e.target) && navMenu.classList.contains('active')) {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            }
+        });
+
+        // Close menu when clicking a link
+        navMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
+    </script>
+
+</body>
+</html>
