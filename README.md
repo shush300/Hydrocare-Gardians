@@ -17,8 +17,7 @@ https://www.canva.com/design/DAGnRVWfNYQ/wZcataOI1qKTpsLsHxuU7A/edit?utm_content
 # Water Treatments
 ![Screenshot 2025-05-16 011809](https://github.com/user-attachments/assets/3866970e-eb00-40c1-a0dc-69b7b2c2aa7f)
 ![444](https://github.com/user-attachments/assets/9468a8a3-8bde-4db8-b07b-5430553f9a7f)
-# Project features
-
+# Prototype features
 * a low-cost, multi-stage water filtration solution
   
 * Treating wastewater—especially from textile sources—using natural, chemical, and physical methods, supported by smart monitoring.
@@ -53,3 +52,13 @@ https://www.canva.com/design/DAGnRVWfNYQ/wZcataOI1qKTpsLsHxuU7A/edit?utm_content
   
 * **Add graphene oxide** to filter multiple gases, including fine particulate matter like **PM 2.5**.
 
+# Website Features
+* **User-friendly interface** built with **HTML, CSS, and JavaScript**, tailored for farmers.
+  
+* **Login system** using **phone number and password** for personalized access.
+
+*  **Filter system control**: Allows farmers to manage and operate the filtration system for specific time durations.
+  
+* **Maintenance reminders** to alert users when to change treatment components (e.g., filters, media).
+  
+* **Annual performance report** generated for each user to track system efficiency and water quality.
