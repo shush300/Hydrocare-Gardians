@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - Farm Filtration</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>GreenFarm Filtration</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="control.html">Control Panel</a></li>
+            <li><a href="efficiency.html">Efficiency & Reminders</a></li>
+            <li><a href="report.html">Annual Report</a></li>
+            <li><a href="account.html" class="active">My Account</a></li>
+            <li><a href="#" id="logout-btn">Logout</a></li>
+        </ul>
+    </nav>
+
+    <main class="container fade-in">
+        <h2>My Account Information</h2>
+        
+        <div class="account-info card">
+            <h3>Personal Information</h3>
+            <p><strong>Phone Number:</strong> <span id="user-phone"><!-- Dynamic Data: +1234567890 --></span></p>
+            <p><strong>Account Status:</strong> <span class="status-active">Active</span></p>
+            <p><strong>Member Since:</strong> <span id="member-since"><!-- Dynamic Data --></span></p>
+        </div>
+
+        <div class="account-actions card">
+            <h3>Account Management</h3>
+            <div class="form-group">
+                <button type="button" id="change-password-btn">Change Password</button>
+            </div>
+            <div class="form-group">
+                <button type="button" id="update-phone-btn">Update Phone Number</button>
+            </div>
+            <div class="form-group">
+                <button type="button" id="notification-settings-btn">Notification Settings</button>
+            </div>
+        </div>
+
+        <div class="account-security card">
+            <h3>Security Settings</h3>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="two-factor-auth">
+                    Enable Two-Factor Authentication
+                </label>
+            </div>
+            <div class="form-group">
+                <button type="button" id="security-log-btn">View Security Log</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 GreenFarm Systems</p>
+    </footer>
+
+    <script type="module">
+        // Import Firebase from CDN
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBgDqXmHJ6nGG_wP3wqay3dH_Da7QnqRAg",
+            authDomain: "greenfarm-filtration.firebaseapp.com",
+            databaseURL: "https://greenfarm-filtration-default-rtdb.firebaseio.com",
+            projectId: "greenfarm-filtration",
+            storageBucket: "greenfarm-filtration.firebasestorage.app",
+            messagingSenderId: "576448170070",
+            appId: "1:576448170070:web:badfa5ea6a0fa9522b53f7"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Logout functionality
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    await signOut(auth);
+                    window.location.href = 'login.html';
+                } catch (error) {
+                    console.error('Error signing out:', error);
+                    alert('Error signing out. Please try again.');
+                }
+            });
+        }
+
+        // Check authentication state
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                // Update user information in the UI
+                const userEmailSpan = document.getElementById('user-email');
+                if (userEmailSpan) {
+                    userEmailSpan.textContent = user.email;
+                }
+                
+                const memberSinceSpan = document.getElementById('member-since');
+                if (memberSinceSpan) {
+                    const creationDate = new Date(user.metadata.creationTime);
+                    memberSinceSpan.textContent = creationDate.toLocaleDateString();
+                }
+            }
+        });
+
+        // Add your existing event handlers here
+        document.addEventListener('DOMContentLoaded', () => {
+            // Example: Add click handlers for buttons
+            const changePasswordBtn = document.getElementById('change-password-btn');
+            if (changePasswordBtn) {
+                changePasswordBtn.addEventListener('click', () => {
+                    // Implement password change logic
+                    alert('Password change functionality to be implemented');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
