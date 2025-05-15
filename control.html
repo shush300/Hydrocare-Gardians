@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel - Farm Filtration</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Control panel specific styles */
+        .control-section {
+            margin-bottom: 2rem;
+        }
+
+        .schedule-control {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            align-items: end;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .status-running {
+            background-color: rgba(56, 142, 60, 0.1);
+            color: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        .status-idle {
+            background-color: rgba(84, 110, 122, 0.1);
+            color: var(--text-light);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .schedule-control {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header><h1>GreenFarm Filtration</h1></header>
+    <nav>
+        <ul>
+             <li><a href="control.html">Control Panel</a></li>
+            <li><a href="efficiency.html">Efficiency & Reminders</a></li>
+            <li><a href="report.html">Annual Report</a></li>
+            <li><a href="account.html">My Account</a></li>
+            <li><a href="#" id="logout-btn">Logout</a></li>
+        </ul>
+    </nav>
+    <main class="container">
+        <h2>Automatic Control Panel</h2>
+        <p>Control your filtration and irrigation cycles remotely.</p>
+
+        <div class="control-section">
+            <h3>Filtration System</h3>
+            <p>Status: <strong id="filtration-status"><!-- Dynamic Data: Idle / Running --></strong></p>
+            <!-- Buttons need JavaScript to send commands to the backend -->
+            <button id="start-filtration">Start Filtration Now</button>
+            <button id="stop-filtration">Stop Filtration Now</button>
+             <div class="schedule-control">
+                <label for="filtration-schedule-time">Set Automatic Start Time:</label>
+                <input type="time" id="filtration-schedule-time" name="filtration_start_time">
+                <!-- Button needs JS/Backend -->
+                <button id="set-filtration-schedule">Set Filtration Schedule</button>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <h3>Irrigation System</h3>
+             <p>Status: <strong id="irrigation-status"><!-- Dynamic Data: Idle / Running --></strong></p>
+             <!-- Buttons need JavaScript to send commands to the backend -->
+            <button id="start-irrigation">Start Irrigation Now</button>
+            <button id="stop-irrigation">Stop Irrigation Now</button>
+             <div class="schedule-control">
+                <label for="irrigation-schedule-start-time">Set Automatic Start Time:</label>
+                <input type="time" id="irrigation-schedule-start-time" name="irrigation_start_time">
+                <!-- You might want start AND end times or duration for irrigation -->
+                <!-- <label for="irrigation-schedule-end-time">End Time:</label>
+                <input type="time" id="irrigation-schedule-end-time" name="irrigation_end_time"> -->
+                 <!-- Button needs JS/Backend -->
+                <button id="set-irrigation-schedule">Set Irrigation Schedule</button>
+            </div>
+        </div>
+
+    </main>
+    <footer><p>© 2024 GreenFarm Systems</p></footer>
+    <script src="script.js"></script> <!-- Crucial for making buttons work -->
+    <script type="module">
+        // Import Firebase from CDN
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBgDqXmHJ6nGG_wP3wqay3dH_Da7QnqRAg",
+            authDomain: "greenfarm-filtration.firebaseapp.com",
+            databaseURL: "https://greenfarm-filtration-default-rtdb.firebaseio.com",
+            projectId: "greenfarm-filtration",
+            storageBucket: "greenfarm-filtration.firebasestorage.app",
+            messagingSenderId: "576448170070",
+            appId: "1:576448170070:web:badfa5ea6a0fa9522b53f7"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Logout functionality
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    await signOut(auth);
+                    window.location.href = 'login.html';
+                } catch (error) {
+                    console.error('Error signing out:', error);
+                    alert('Error signing out. Please try again.');
+                }
+            });
+        }
+
+        // Check authentication state
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>
